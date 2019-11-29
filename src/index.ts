@@ -1,15 +1,14 @@
 import * as  multer from 'multer';
-import * as Storage from '@google-cloud/storage';
-import { Bucket, ConfigurationObject } from '@google-cloud/storage';
+import {Storage, Bucket, StorageOptions, CreateWriteStreamOptions, PredefinedAcl} from '@google-cloud/storage';
 import * as uuid from 'uuid/v1';
 import { Request } from 'express';
-const storage: (options?:ConfigurationObject)=>Storage = require('@google-cloud/storage');
+const storage: (options?:StorageOptions)=>Storage = require('@google-cloud/storage');
 
 export default class MulterGoogleCloudStorage implements multer.StorageEngine {
 
 	private gcobj: Storage;
 	private gcsBucket: Bucket;
-	private options: ConfigurationObject & { acl?: string, bucket?: string, contentType?: ContentTypeFunction };
+	private options: StorageOptions & { acl?: PredefinedAcl, bucket?: string, contentType?: ContentTypeFunction };
 
 	getFilename(req, file, cb) {
     	cb(null,`${uuid()}_${file.originalname}`);
@@ -22,7 +21,7 @@ export default class MulterGoogleCloudStorage implements multer.StorageEngine {
 		return undefined;
 	}
 
-	constructor(opts?: ConfigurationObject & { filename?: any, bucket?:string, contentType?: ContentTypeFunction }) {
+	constructor(opts?: StorageOptions & { filename?: any, bucket?:string, contentType?: ContentTypeFunction }) {
 		 opts = opts || {};
 
 		this.getFilename = (opts.filename || this.getFilename);
@@ -63,7 +62,7 @@ export default class MulterGoogleCloudStorage implements multer.StorageEngine {
 				}
 				var gcFile = this.gcsBucket.file(filename);
 
-				const streamOpts: Storage.WriteStreamOptions = {
+				const streamOpts: CreateWriteStreamOptions = {
 					predefinedAcl: this.options.acl || 'private'
 				};
 
@@ -91,9 +90,9 @@ export default class MulterGoogleCloudStorage implements multer.StorageEngine {
 	};
 }
 
-export function storageEngine(opts?: ConfigurationObject & { filename?: any, bucket?:string }){
+export function storageEngine(opts?: StorageOptions & { filename?: any, bucket?:string }){
 
 	return new MulterGoogleCloudStorage(opts);
 }
 
-export type ContentTypeFunction = (req: Request, file: Express.Multer.File) => string | undefined;
+export type ContentTypeFunction = (req: Request, file: any) => string | undefined;

@@ -1,6 +1,5 @@
-/// <reference types="google-cloud__storage" />
 import * as multer from 'multer';
-import { ConfigurationObject } from '@google-cloud/storage';
+import { StorageOptions } from '@google-cloud/storage';
 import { Request } from 'express';
 export default class MulterGoogleCloudStorage implements multer.StorageEngine {
     private gcobj;
@@ -9,7 +8,7 @@ export default class MulterGoogleCloudStorage implements multer.StorageEngine {
     getFilename(req: any, file: any, cb: any): void;
     getDestination(req: any, file: any, cb: any): void;
     getContentType: ContentTypeFunction;
-    constructor(opts?: ConfigurationObject & {
+    constructor(opts?: StorageOptions & {
         filename?: any;
         bucket?: string;
         contentType?: ContentTypeFunction;
@@ -17,8 +16,8 @@ export default class MulterGoogleCloudStorage implements multer.StorageEngine {
     _handleFile: (req: any, file: any, cb: any) => void;
     _removeFile: (req: any, file: any, cb: any) => void;
 }
-export declare function storageEngine(opts?: ConfigurationObject & {
+export declare function storageEngine(opts?: StorageOptions & {
     filename?: any;
     bucket?: string;
 }): MulterGoogleCloudStorage;
-export declare type ContentTypeFunction = (req: Request, file: Express.Multer.File) => string | undefined;
+export declare type ContentTypeFunction = (req: Request, file: any) => string | undefined;
